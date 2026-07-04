@@ -7,13 +7,124 @@
 (function EditBackModule(global) {
   "use strict";
 
+  const STRINGS = {
+    zh: {
+      openEditor: "打开编辑器",
+      collapse: "收起",
+      editOn: "编辑中",
+      editOff: "开始编辑",
+      ready: "就绪",
+      editable: "可编辑",
+      selected: "已选中",
+      moved: "已移动",
+      resized: "已调整",
+      draftSaved: "已暂存",
+      duplicated: "已复制",
+      imageReplaced: "图片已替换",
+      deleted: "已删除",
+      restored: "已恢复",
+      saved: "已保存",
+      saveFailed: "保存失败",
+      saveCancelled: "已取消",
+      linkFirst: "请先关联文件",
+      linkFile: "关联本地文件",
+      linked: "已关联",
+      fileLinked: "文件已关联",
+      downloaded: "已下载副本",
+      reset: "已重置",
+      blockDeleted: "模块已删除",
+      restoreDraft: "发现未保存草稿，是否恢复？",
+      restoreYes: "恢复",
+      restoreNo: "丢弃",
+      undo: "撤销",
+      save: "保存",
+      print: "导出",
+      resetBtn: "重置",
+      linkTitle: "选择要直接覆盖保存的 HTML 原文件（Chrome / Edge）",
+      saveAlert: "首次保存需选择 HTML 原文件，之后将直接覆盖。",
+      saveFailAlert: "未能覆盖原文件，请重新关联后再试。",
+      downloadAlert: "当前浏览器不支持直接写盘，将下载副本。",
+      resetConfirm: "确定恢复到打开文件时的内容？草稿将被清除。",
+      deleteConfirm: "确定删除选中模块？可用「重置」恢复全部。",
+      imageLarge: "图片超过 5MB，嵌入后文件会变大，是否继续？",
+      move: "移动",
+      resize: "缩放",
+      copy: "复制",
+      image: "换图",
+      delete: "删除",
+      kbdHint: "E 编辑 · ⌘S 保存 · ⌘P 打印",
+    },
+    en: {
+      openEditor: "Open editor",
+      collapse: "Collapse",
+      editOn: "Editing",
+      editOff: "Start editing",
+      ready: "Ready",
+      editable: "Editable",
+      selected: "Selected",
+      moved: "Moved",
+      resized: "Resized",
+      draftSaved: "Draft saved",
+      duplicated: "Duplicated",
+      imageReplaced: "Image replaced",
+      deleted: "Deleted",
+      restored: "Restored",
+      saved: "Saved",
+      saveFailed: "Save failed",
+      saveCancelled: "Cancelled",
+      linkFirst: "Link file first",
+      linkFile: "Link local file",
+      linked: "Linked",
+      fileLinked: "File linked",
+      downloaded: "Downloaded",
+      reset: "Reset",
+      blockDeleted: "Block deleted",
+      restoreDraft: "Unsaved draft found. Restore?",
+      restoreYes: "Restore",
+      restoreNo: "Discard",
+      undo: "Undo",
+      save: "Save",
+      print: "Print",
+      resetBtn: "Reset",
+      linkTitle: "Link HTML file for direct save (Chrome / Edge)",
+      saveAlert: "Select the original HTML file once. Later saves overwrite it.",
+      saveFailAlert: "Could not overwrite. Re-link the file and try again.",
+      downloadAlert: "Direct save unavailable. A copy will be downloaded.",
+      resetConfirm: "Reset to content from when this file was opened?",
+      deleteConfirm: "Delete selected block?",
+      imageLarge: "Image is larger than 5 MB. Embed anyway?",
+      move: "Move",
+      resize: "Resize",
+      copy: "Copy",
+      image: "Image",
+      delete: "Delete",
+      kbdHint: "E edit · ⌘S save · ⌘P print",
+    },
+  };
+
+  const ICONS = {
+    edit: '<svg class="eb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',
+    layers: '<svg class="eb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12.83 2.18 8.49 4.92a1 1 0 0 1 0 1.74l-8.5 4.92a2 2 0 0 1-2 0l-8.5-4.92a1 1 0 0 1 0-1.74l8.5-4.92a2 2 0 0 1 2 0Z"/><path d="M2 12.5l8.5 4.92a2 2 0 0 0 2 0L21 12.5"/><path d="M2 17.5l8.5 4.92a2 2 0 0 0 2 0L21 17.5"/></svg>',
+    close: '<svg class="eb-icon eb-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>',
+    save: '<svg class="eb-icon eb-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>',
+    link: '<svg class="eb-icon eb-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>',
+    print: '<svg class="eb-icon eb-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>',
+    reset: '<svg class="eb-icon eb-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 3v6h6"/></svg>',
+    move: '<svg class="eb-icon eb-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v20M2 12h20"/><path d="m16 6 4-4M20 6l-4-4M8 18l-4 4M4 18l4 4M18 8l4-4M22 8l-4-4M6 16l-4 4M2 16l4 4"/></svg>',
+    resize: '<svg class="eb-icon eb-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>',
+    copy: '<svg class="eb-icon eb-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>',
+    image: '<svg class="eb-icon eb-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L9 18"/></svg>',
+    trash: '<svg class="eb-icon eb-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M10 11v6M14 11v6"/></svg>',
+    penOn: '<svg class="eb-icon eb-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5 5"/><path d="M16 3l5 5"/></svg>',
+  };
+
   const DEFAULTS = {
     root: "[data-editback-root], .book, main",
     pageScaleSelector: ".pg, [data-editback-page]",
     pageDesignWidth: 1920,
     accentColor: "#F56A21",
     storagePrefix: "editback",
-    fabLabel: "编",
+    locale: "zh",
     restoreDraft: true,
     layoutSelectors: [
       "img",
@@ -36,45 +147,57 @@
 
   const supportsFS = typeof global.showSaveFilePicker === "function";
 
-  function createShell() {
+  function createShell(t) {
     if (document.querySelector(".eb-editbar")) return;
 
     document.body.insertAdjacentHTML(
       "beforeend",
       `
-<div class="eb-editbar" aria-label="EditBack toolbar">
-  <button class="eb-fab" type="button" aria-label="Open editor" aria-expanded="false"></button>
+<div class="eb-editbar" aria-label="EditBack">
+  <button class="eb-fab" type="button" aria-label="${t.openEditor}" aria-expanded="false">${ICONS.edit}</button>
   <div class="eb-panel">
-    <button class="eb-toggle" type="button" aria-pressed="false">Edit</button>
-    <span class="eb-dot" aria-hidden="true"></span>
-    <span class="eb-status">Off</span>
-    <button class="eb-save" type="button">Save</button>
-    <span class="eb-filelink" role="button" tabindex="0" title="Link local file for direct save (Chrome / Edge)">Link file</span>
-    <button class="eb-print" type="button">Print</button>
-    <button class="eb-reset" type="button">Reset</button>
-    <button class="eb-collapse" type="button" aria-label="Collapse toolbar">×</button>
+    <div class="eb-panel-head">
+      <div class="eb-brand">
+        <span class="eb-brand-mark">${ICONS.layers}</span>
+        <span>EditBack</span>
+      </div>
+      <span class="eb-status">${t.ready}</span>
+      <button class="eb-collapse" type="button" aria-label="${t.collapse}">${ICONS.close}</button>
+    </div>
+    <div class="eb-panel-body">
+      <button class="eb-toggle" type="button" aria-pressed="false">${ICONS.penOn}<span class="eb-toggle-label">${t.editOff}</span></button>
+      <div class="eb-actions">
+        <button class="eb-action eb-save" type="button" title="${t.save}">${ICONS.save}<span>${t.save}</span></button>
+        <button class="eb-action eb-print" type="button" title="${t.print}">${ICONS.print}<span>${t.print}</span></button>
+        <button class="eb-action eb-reset" type="button" title="${t.resetBtn}">${ICONS.reset}<span>${t.resetBtn}</span></button>
+        <button class="eb-action eb-link" type="button" title="${t.linkFile}">${ICONS.link}<span>${t.linkFile}</span></button>
+      </div>
+      <button class="eb-filelink" type="button" title="${t.linkTitle}">${ICONS.link}<span class="eb-filelink-text">${t.linkFile}</span></button>
+      <p class="eb-kbd-hint">${t.kbdHint.replace("⌘", navigator.platform.includes("Mac") ? "⌘" : "Ctrl+")}</p>
+    </div>
   </div>
 </div>
 <div class="eb-layout-tools" aria-label="Block tools" hidden>
-  <button class="eb-drag-handle" type="button">Move</button>
-  <button class="eb-resize-handle" type="button">Resize</button>
-  <button class="eb-duplicate-handle" type="button">Copy</button>
-  <button class="eb-image-handle" type="button" hidden>Image</button>
-  <button class="eb-delete-handle" type="button">Delete</button>
+  <button class="eb-drag-handle" type="button" data-tip="${t.move}">${ICONS.move}</button>
+  <button class="eb-resize-handle" type="button" data-tip="${t.resize}">${ICONS.resize}</button>
+  <button class="eb-duplicate-handle" type="button" data-tip="${t.copy}">${ICONS.copy}</button>
+  <button class="eb-image-handle" type="button" hidden data-tip="${t.image}">${ICONS.image}</button>
+  <button class="eb-delete-handle" type="button" data-tip="${t.delete}">${ICONS.trash}</button>
 </div>
 <div class="eb-restore-banner" hidden>
-  <span class="eb-restore-text">Unsaved draft found. Restore?</span>
-  <button class="eb-restore-yes" type="button">Restore</button>
-  <button class="eb-restore-no" type="button">Discard</button>
+  <span class="eb-restore-text">${t.restoreDraft}</span>
+  <button class="eb-restore-yes" type="button">${t.restoreYes}</button>
+  <button class="eb-restore-no" type="button">${t.restoreNo}</button>
 </div>`
     );
   }
 
   function init(userConfig) {
     const config = mergeConfig(userConfig);
+    const t = STRINGS[config.locale] || STRINGS.zh;
     document.documentElement.style.setProperty("--eb-accent", config.accentColor);
 
-    createShell();
+    createShell(t);
 
     const root = document.querySelector(config.root);
     if (!root) {
@@ -87,8 +210,11 @@
     const collapseBtn = toolbar.querySelector(".eb-collapse");
     const toggle = toolbar.querySelector(".eb-toggle");
     const status = toolbar.querySelector(".eb-status");
+    const toggleLabel = toggle.querySelector(".eb-toggle-label");
     const saveBtn = toolbar.querySelector(".eb-save");
     const fileLinkEl = toolbar.querySelector(".eb-filelink");
+    const fileLinkText = fileLinkEl.querySelector(".eb-filelink-text");
+    const linkBtn = toolbar.querySelector(".eb-link");
     const printBtn = toolbar.querySelector(".eb-print");
     const resetBtn = toolbar.querySelector(".eb-reset");
     const layoutTools = document.querySelector(".eb-layout-tools");
@@ -98,8 +224,6 @@
     const imageHandle = layoutTools.querySelector(".eb-image-handle");
     const deleteBtn = layoutTools.querySelector(".eb-delete-handle");
     const restoreBanner = document.querySelector(".eb-restore-banner");
-
-    fab.textContent = config.fabLabel;
 
     const storageKey = `${config.storagePrefix}:draft:${location.pathname}`;
     const dbKey = `${config.storagePrefix}:handle:${location.pathname}`;
@@ -162,8 +286,9 @@
       return false;
     };
 
-    const setStatus = (text) => {
+    const setStatus = (text, live = false) => {
       status.textContent = text;
+      status.classList.toggle("is-live", live);
     };
 
     const setToolbarOpen = (open) => {
@@ -172,8 +297,8 @@
     };
 
     const setFileLinkLabel = (text, linked) => {
-      if (!fileLinkEl) return;
-      fileLinkEl.textContent = text;
+      if (!fileLinkText) return;
+      fileLinkText.textContent = text;
       fileLinkEl.dataset.linked = String(!!linked);
     };
 
@@ -187,7 +312,7 @@
       });
       linkedFileHandle = handle;
       await idbSet(dbKey, handle);
-      setFileLinkLabel(`Linked: ${handle.name}`, true);
+      setFileLinkLabel(`${t.linked}: ${handle.name}`, true);
       return handle;
     };
 
@@ -199,9 +324,9 @@
       const stored = await idbGet(dbKey);
       if (stored && (await verifyWritePermission(stored).catch(() => false))) {
         linkedFileHandle = stored;
-        setFileLinkLabel(`Linked: ${stored.name}`, true);
+        setFileLinkLabel(`${t.linked}: ${stored.name}`, true);
       } else {
-        setFileLinkLabel("Link file before save", false);
+        setFileLinkLabel(t.linkFile, false);
       }
     };
 
@@ -239,8 +364,8 @@
     const setEditing = (enabled) => {
       document.body.classList.toggle("eb-editing", enabled);
       toggle.setAttribute("aria-pressed", String(enabled));
-      toggle.textContent = enabled ? "Editing" : "Edit";
-      setStatus(enabled ? "Editable" : "Off");
+      if (toggleLabel) toggleLabel.textContent = enabled ? t.editOn : t.editOff;
+      setStatus(enabled ? t.editable : t.ready, enabled);
       if (!enabled) clearLayoutSelection();
       root.querySelectorAll("[data-eb-editable]").forEach((node) => {
         if (enabled) {
@@ -303,7 +428,7 @@
       selectedLayoutEl = node;
       selectedLayoutEl.classList.add("eb-layout-selected");
       updateLayoutTools();
-      setStatus("Selected");
+      setStatus(t.selected, true);
     };
 
     const startLayoutAction = (event, action) => {
@@ -347,7 +472,7 @@
         document.body.classList.remove("eb-layout-dragging", "eb-layout-resizing");
         updateLayoutTools();
         scheduleDraftSave();
-        setStatus(action === "drag" ? "Moved" : "Resized");
+        setStatus(action === "drag" ? t.moved : t.resized, true);
       };
 
       document.addEventListener("pointermove", move);
@@ -358,7 +483,7 @@
       window.clearTimeout(draftTimer);
       draftTimer = window.setTimeout(() => {
         localStorage.setItem(storageKey, root.innerHTML);
-        setStatus("Draft saved");
+        setStatus(t.draftSaved, true);
       }, 450);
     };
 
@@ -366,7 +491,7 @@
       document.querySelector(".eb-undo-toast")?.remove();
       const toast = document.createElement("div");
       toast.className = "eb-undo-toast";
-      toast.innerHTML = `<span>${message}</span><button type="button">Undo</button>`;
+      toast.innerHTML = `<span>${message}</span><button type="button">${t.undo}</button>`;
       toast.querySelector("button").addEventListener("click", () => {
         onUndo();
         toast.remove();
@@ -385,7 +510,7 @@
       selectedLayoutEl.after(clone);
       selectLayoutTarget(clone);
       scheduleDraftSave();
-      setStatus("Duplicated");
+      setStatus(t.duplicated, true);
     };
 
     const replaceSelectedImage = () => {
@@ -397,7 +522,7 @@
         const file = input.files?.[0];
         if (!file) return;
         if (file.size > 5 * 1024 * 1024) {
-          const ok = confirm("Image is larger than 5 MB. Embed anyway? File size will grow.");
+          const ok = confirm(t.imageLarge);
           if (!ok) return;
         }
         const reader = new FileReader();
@@ -405,7 +530,7 @@
           selectedLayoutEl.src = String(reader.result);
           if (!selectedLayoutEl.alt) selectedLayoutEl.alt = file.name;
           scheduleDraftSave();
-          setStatus("Image replaced");
+          setStatus(t.imageReplaced, true);
         };
         reader.readAsDataURL(file);
       });
@@ -427,9 +552,13 @@
       if (clonedFab) clonedFab.setAttribute("aria-expanded", "false");
       if (clonedToggle) {
         clonedToggle.setAttribute("aria-pressed", "false");
-        clonedToggle.textContent = "Edit";
+        const label = clonedToggle.querySelector(".eb-toggle-label");
+        if (label) label.textContent = t.editOff;
       }
-      if (clonedStatus) clonedStatus.textContent = "Off";
+      if (clonedStatus) {
+        clonedStatus.textContent = t.ready;
+        clonedStatus.classList.remove("is-live");
+      }
       return `<!DOCTYPE html>\n${clone.outerHTML}`;
     };
 
@@ -442,7 +571,7 @@
       link.click();
       link.remove();
       URL.revokeObjectURL(link.href);
-      setStatus("Downloaded copy");
+      setStatus(t.downloaded);
     };
 
     const saveHTML = async () => {
@@ -451,8 +580,8 @@
       if (supportsFS) {
         try {
           if (!linkedFileHandle) {
-            setStatus("Link file first");
-            alert("Select the original HTML file once. Later saves will overwrite it directly.");
+            setStatus(t.linkFirst);
+            alert(t.saveAlert);
           }
           const handle = linkedFileHandle || (await pickFileHandle());
           const ok = await verifyWritePermission(handle);
@@ -461,21 +590,21 @@
           await writable.write(html);
           await writable.close();
           localStorage.removeItem(storageKey);
-          setStatus("Saved to file");
+          setStatus(t.saved, true);
           return;
         } catch (err) {
           if (err?.name === "AbortError") {
-            setStatus("Save cancelled");
+            setStatus(t.saveCancelled);
             return;
           }
           console.warn("[editback] save failed:", err);
-          setStatus("Save failed");
-          alert("Could not overwrite the file. Re-link the HTML file and try again.");
+          setStatus(t.saveFailed);
+          alert(t.saveFailAlert);
           return;
         }
       }
 
-      alert("This browser cannot write directly to disk. A copy will be downloaded instead.");
+      alert(t.downloadAlert);
       downloadCopy(html);
     };
 
@@ -488,7 +617,7 @@
         root.innerHTML = draft;
         markEditableText();
         restoreBanner.hidden = true;
-        setStatus("Draft restored");
+        setStatus(t.restored, true);
       };
       restoreBanner.querySelector(".eb-restore-no").onclick = () => {
         localStorage.removeItem(storageKey);
@@ -507,13 +636,13 @@
       if (wasEditing) setEditing(true);
     });
     resetBtn.addEventListener("click", () => {
-      if (!confirm("Reset to the content from when this file was opened? Draft will be cleared.")) return;
+      if (!confirm(t.resetConfirm)) return;
       localStorage.removeItem(storageKey);
       clearLayoutSelection();
       root.innerHTML = initialRootHTML;
       markEditableText();
       setEditing(false);
-      setStatus("Reset");
+      setStatus(t.reset);
     });
 
     dragHandle.addEventListener("pointerdown", (e) => startLayoutAction(e, "drag"));
@@ -522,14 +651,14 @@
     imageHandle.addEventListener("click", replaceSelectedImage);
     deleteBtn.addEventListener("click", () => {
       if (!selectedLayoutEl) return;
-      if (!confirm("Delete selected block? Use Reset to undo all changes.")) return;
+      if (!confirm(t.deleteConfirm)) return;
       undoEntry = { html: selectedLayoutEl.outerHTML, parent: selectedLayoutEl.parentElement, next: selectedLayoutEl.nextSibling };
       const removed = selectedLayoutEl;
       clearLayoutSelection();
       removed.remove();
       scheduleDraftSave();
-      setStatus("Deleted");
-      showUndoToast("Block deleted", () => {
+      setStatus(t.deleted);
+      showUndoToast(t.blockDeleted, () => {
         if (!undoEntry?.parent) return;
         const temp = document.createElement("div");
         temp.innerHTML = undoEntry.html;
@@ -538,20 +667,21 @@
         undoEntry.parent.insertBefore(node, undoEntry.next);
         selectLayoutTarget(node);
         scheduleDraftSave();
-        setStatus("Restored");
+        setStatus(t.restored, true);
       });
     });
 
-    if (fileLinkEl) {
-      fileLinkEl.addEventListener("click", async () => {
-        try {
-          await pickFileHandle();
-          setStatus("File linked");
-        } catch (err) {
-          if (err?.name !== "AbortError") console.error(err);
-        }
-      });
-    }
+    const linkFile = async () => {
+      try {
+        await pickFileHandle();
+        setStatus(t.fileLinked, true);
+      } catch (err) {
+        if (err?.name !== "AbortError") console.error(err);
+      }
+    };
+
+    if (fileLinkEl) fileLinkEl.addEventListener("click", linkFile);
+    if (linkBtn) linkBtn.addEventListener("click", linkFile);
 
     root.addEventListener("input", (event) => {
       if (event.target instanceof HTMLElement && event.target.matches("[data-eb-editable]")) {

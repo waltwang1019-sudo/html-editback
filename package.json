@@ -1,6 +1,6 @@
 {
   "name": "html-editback",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Self-contained edit layer for HTML documents — edit in browser, save back to local file",
   "type": "module",
   "scripts": {

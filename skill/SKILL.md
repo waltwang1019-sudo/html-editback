@@ -42,7 +42,7 @@ node scripts/inject.mjs path/to/doc.html --root ".book"
 <script>
   window.EDITBACK_CONFIG = {
     root: "[data-editback-root]",
-    fabLabel: "编",
+    locale: "zh",
     accentColor: "#F56A21",
     pageScaleSelector: ".pg",
     pageDesignWidth: 1920,

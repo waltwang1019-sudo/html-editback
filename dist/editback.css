@@ -1,62 +1,107 @@
-/* html-editback — self-contained edit layer for HTML documents */
+/* html-editback v1.1 — editor chrome */
 
+:root {
+  --eb-font: "SF Pro Text", "PingFang SC", "Helvetica Neue", system-ui, sans-serif;
+  --eb-surface: #111318;
+  --eb-surface-2: #181b24;
+  --eb-border: rgba(255, 255, 255, 0.08);
+  --eb-border-strong: rgba(255, 255, 255, 0.14);
+  --eb-text: rgba(255, 255, 255, 0.92);
+  --eb-text-muted: rgba(255, 255, 255, 0.52);
+  --eb-text-faint: rgba(255, 255, 255, 0.36);
+  --eb-accent: #f56a21;
+  --eb-accent-soft: color-mix(in srgb, var(--eb-accent) 18%, transparent);
+  --eb-success: #3ecf8e;
+  --eb-success-soft: rgba(62, 207, 142, 0.14);
+  --eb-danger: #f07167;
+  --eb-danger-soft: rgba(240, 113, 103, 0.16);
+  --eb-info: #5b9dff;
+  --eb-info-soft: rgba(91, 157, 255, 0.16);
+  --eb-shadow-lg: 0 24px 64px rgba(0, 0, 0, 0.42), 0 2px 8px rgba(0, 0, 0, 0.24);
+  --eb-shadow-md: 0 12px 32px rgba(0, 0, 0, 0.32);
+  --eb-radius-lg: 16px;
+  --eb-radius-md: 12px;
+  --eb-radius-sm: 10px;
+  --eb-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.eb-icon {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  display: block;
+}
+
+.eb-icon-sm {
+  width: 15px;
+  height: 15px;
+}
+
+/* ── Main toolbar ── */
 .eb-editbar {
   position: fixed;
-  top: 18px;
-  right: 24px;
+  top: 20px;
+  right: 20px;
   z-index: 9999;
-  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-  color: #fff;
+  font-family: var(--eb-font);
+  color: var(--eb-text);
   pointer-events: none;
 }
 
 .eb-editbar .eb-fab {
   pointer-events: auto;
   appearance: none;
-  width: 44px;
-  height: 44px;
-  border: 0;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--eb-accent, #f56a21);
+  width: 48px;
+  height: 48px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(120% 120% at 20% 0%, rgba(255, 255, 255, 0.22), transparent 55%),
+    linear-gradient(145deg, color-mix(in srgb, var(--eb-accent) 88%, #fff), var(--eb-accent));
   color: #fff;
-  font: 800 18px/1 system-ui, sans-serif;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.34);
+  box-shadow: var(--eb-shadow-md);
   cursor: pointer;
-  transition: transform 0.18s ease, opacity 0.18s ease, background 0.18s ease;
+  transition: transform 0.22s var(--eb-ease), box-shadow 0.22s var(--eb-ease), opacity 0.18s ease;
+}
+
+.eb-editbar .eb-fab .eb-icon {
+  width: 20px;
+  height: 20px;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.18));
 }
 
 .eb-editbar .eb-fab:hover {
-  transform: translateY(-1px) scale(1.04);
-  filter: brightness(1.08);
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: var(--eb-shadow-lg);
+}
+
+.eb-editbar .eb-fab:active {
+  transform: translateY(0) scale(0.98);
 }
 
 .eb-editbar.is-open .eb-fab {
   opacity: 0;
   pointer-events: none;
-  transform: scale(0.86);
+  transform: scale(0.88) translateY(-4px);
 }
 
 .eb-editbar .eb-panel {
   position: absolute;
   top: 0;
   right: 0;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 13px;
-  background: rgba(22, 22, 22, 0.82);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 999px;
-  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.36);
-  backdrop-filter: blur(14px);
+  width: min(300px, calc(100vw - 40px));
+  background: var(--eb-surface);
+  border: 1px solid var(--eb-border-strong);
+  border-radius: var(--eb-radius-lg);
+  box-shadow: var(--eb-shadow-lg);
+  overflow: hidden;
   opacity: 0;
-  transform: translateY(-2px) scale(0.96);
+  transform: translateY(-6px) scale(0.96);
   transform-origin: top right;
   pointer-events: none;
-  transition: opacity 0.18s ease, transform 0.18s ease;
+  transition: opacity 0.22s var(--eb-ease), transform 0.22s var(--eb-ease);
 }
 
 .eb-editbar.is-open .eb-panel {
@@ -65,161 +110,336 @@
   pointer-events: auto;
 }
 
-.eb-editbar button {
-  appearance: none;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
-  padding: 9px 13px;
-  font: 600 13px/1 system-ui, sans-serif;
-  letter-spacing: 0.04em;
-  cursor: pointer;
-  transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+.eb-panel-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 14px 12px;
+  border-bottom: 1px solid var(--eb-border);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent);
 }
 
-.eb-editbar button:hover {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(255, 255, 255, 0.3);
+.eb-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 1;
+  font: 600 13px/1 var(--eb-font);
+  letter-spacing: 0.01em;
+}
+
+.eb-brand-mark {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  background: var(--eb-accent-soft);
+  color: var(--eb-accent);
+  flex: none;
+}
+
+.eb-brand-mark .eb-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.eb-status {
+  font: 500 11px/1 var(--eb-font);
+  color: var(--eb-text-muted);
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--eb-border);
+  white-space: nowrap;
+  max-width: 96px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.eb-status.is-live {
+  color: var(--eb-success);
+  background: var(--eb-success-soft);
+  border-color: rgba(62, 207, 142, 0.22);
+}
+
+.eb-collapse {
+  appearance: none;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  color: var(--eb-text-muted);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+  flex: none;
+}
+
+.eb-collapse:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--eb-text);
+}
+
+.eb-panel-body {
+  padding: 12px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.eb-toggle {
+  appearance: none;
+  width: 100%;
+  border: 1px solid color-mix(in srgb, var(--eb-accent) 40%, transparent);
+  border-radius: var(--eb-radius-sm);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--eb-accent) 22%, transparent), color-mix(in srgb, var(--eb-accent) 10%, transparent));
+  color: var(--eb-text);
+  padding: 11px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font: 600 13px/1 var(--eb-font);
+  cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease, transform 0.15s ease;
+}
+
+.eb-toggle:hover {
+  border-color: color-mix(in srgb, var(--eb-accent) 55%, transparent);
   transform: translateY(-1px);
 }
 
-.eb-editbar .eb-toggle {
-  background: var(--eb-accent, #f56a21);
-  border-color: var(--eb-accent, #f56a21);
-  color: #fff;
-  padding: 10px 16px;
+.eb-toggle[aria-pressed="true"] {
+  background: linear-gradient(180deg, rgba(62, 207, 142, 0.22), rgba(62, 207, 142, 0.1));
+  border-color: rgba(62, 207, 142, 0.42);
+  color: #dfffea;
 }
 
-.eb-editbar .eb-toggle[aria-pressed="true"] {
-  background: #35c46a;
-  border-color: #35c46a;
+.eb-actions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
 }
 
-.eb-editbar .eb-fab,
-.eb-editbar .eb-collapse {
-  width: 44px;
-  height: 44px;
-  padding: 0;
+.eb-action {
+  appearance: none;
+  border: 1px solid var(--eb-border);
+  border-radius: var(--eb-radius-sm);
+  background: var(--eb-surface-2);
+  color: var(--eb-text-muted);
+  padding: 10px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  font: 500 10px/1 var(--eb-font);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
 }
 
-.eb-editbar .eb-collapse {
-  width: 32px;
-  height: 32px;
-  font-size: 15px;
-  color: rgba(255, 255, 255, 0.72);
+.eb-action:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--eb-border-strong);
+  color: var(--eb-text);
+  transform: translateY(-1px);
 }
 
-.eb-editbar .eb-dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: #35c46a;
-  box-shadow: 0 0 0 4px rgba(53, 196, 106, 0.12);
+.eb-action:active {
+  transform: translateY(0);
 }
 
-.eb-editbar .eb-status {
-  min-width: 74px;
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.72);
-  white-space: nowrap;
+.eb-action.eb-save {
+  color: var(--eb-accent);
 }
 
-.eb-editbar .eb-filelink {
-  font-size: 11.5px;
-  color: rgba(255, 255, 255, 0.55);
-  white-space: nowrap;
-  max-width: 150px;
+.eb-action.eb-save:hover {
+  background: var(--eb-accent-soft);
+  border-color: color-mix(in srgb, var(--eb-accent) 35%, transparent);
+}
+
+.eb-action.eb-reset:hover {
+  color: var(--eb-danger);
+  background: var(--eb-danger-soft);
+  border-color: rgba(240, 113, 103, 0.28);
+}
+
+.eb-filelink {
+  appearance: none;
+  width: 100%;
+  border: 1px dashed var(--eb-border-strong);
+  border-radius: var(--eb-radius-sm);
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--eb-text-muted);
+  padding: 9px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font: 500 11px/1.35 var(--eb-font);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+
+.eb-filelink:hover {
+  color: var(--eb-text);
+  border-color: rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.eb-filelink[data-linked="true"] {
+  color: var(--eb-success);
+  border-style: solid;
+  border-color: rgba(62, 207, 142, 0.28);
+  background: var(--eb-success-soft);
+}
+
+.eb-filelink-text {
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
-  cursor: pointer;
-  border-bottom: 1px dashed rgba(255, 255, 255, 0.3);
-  padding-bottom: 1px;
+  white-space: nowrap;
 }
 
-.eb-editbar .eb-filelink:hover {
-  color: #fff;
+.eb-kbd-hint {
+  font: 500 10px/1.4 var(--eb-font);
+  color: var(--eb-text-faint);
+  text-align: center;
+  margin-top: 2px;
 }
 
-.eb-editbar .eb-filelink[data-linked="true"] {
-  color: #8fd9a8;
-  border-color: rgba(143, 217, 168, 0.5);
+.eb-kbd-hint kbd {
+  display: inline-block;
+  padding: 2px 5px;
+  border-radius: 4px;
+  border: 1px solid var(--eb-border);
+  background: rgba(255, 255, 255, 0.04);
+  font: inherit;
+  color: var(--eb-text-muted);
 }
 
+/* ── Block tools ── */
 .eb-layout-tools {
   position: fixed;
   z-index: 10000;
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px;
-  background: rgba(33, 39, 64, 0.92);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  gap: 2px;
+  padding: 4px;
+  background: var(--eb-surface);
+  border: 1px solid var(--eb-border-strong);
   border-radius: 999px;
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.28);
-  backdrop-filter: blur(12px);
-  font-family: system-ui, sans-serif;
+  box-shadow: var(--eb-shadow-md);
+  font-family: var(--eb-font);
 }
 
 .eb-layout-tools[hidden] {
   display: none !important;
 }
 
+.eb-layout-tools::before {
+  content: "";
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--eb-info);
+  box-shadow: 0 0 0 3px var(--eb-info-soft);
+  margin: 0 4px 0 6px;
+  flex: none;
+}
+
 .eb-layout-tools button {
   appearance: none;
   border: 0;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.12);
-  color: #fff;
-  padding: 7px 10px;
-  font: 600 12px/1 system-ui, sans-serif;
+  background: transparent;
+  color: var(--eb-text-muted);
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
   cursor: pointer;
+  position: relative;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
 }
 
 .eb-layout-tools button:hover {
-  background: rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--eb-text);
+  transform: translateY(-1px);
 }
 
-.eb-layout-tools .eb-drag-handle {
-  background: #3d4470;
-  cursor: grab;
+.eb-layout-tools button[data-tip]::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  padding: 4px 7px;
+  border-radius: 6px;
+  background: #000;
+  color: #fff;
+  font: 500 10px/1 var(--eb-font);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
 }
 
-.eb-layout-tools .eb-resize-handle {
-  background: #2e8b57;
-  cursor: nwse-resize;
+.eb-layout-tools button[data-tip]:hover::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
 }
 
-.eb-layout-tools .eb-duplicate-handle {
-  background: #5a6a9a;
+.eb-layout-tools .eb-drag-handle:hover {
+  color: var(--eb-info);
+  background: var(--eb-info-soft);
 }
 
-.eb-layout-tools .eb-image-handle {
-  background: #7a5a9a;
+.eb-layout-tools .eb-resize-handle:hover {
+  color: var(--eb-success);
+  background: var(--eb-success-soft);
 }
 
-.eb-layout-tools .eb-delete-handle {
-  background: #b84534;
+.eb-layout-tools .eb-duplicate-handle:hover {
+  color: #c4b5fd;
+  background: rgba(196, 181, 253, 0.14);
 }
 
+.eb-layout-tools .eb-image-handle:hover {
+  color: #f0b27a;
+  background: rgba(240, 178, 122, 0.14);
+}
+
+.eb-layout-tools .eb-delete-handle:hover {
+  color: var(--eb-danger);
+  background: var(--eb-danger-soft);
+}
+
+/* ── Editing states ── */
 body.eb-editing [data-eb-editable] {
   cursor: text;
+  border-radius: 2px;
+  transition: box-shadow 0.15s ease, background 0.15s ease;
 }
 
 body.eb-editing [data-eb-editable]:hover {
-  outline: 2px dashed color-mix(in srgb, var(--eb-accent, #f56a21) 78%, transparent);
-  outline-offset: 4px;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--eb-accent) 55%, transparent);
+  background: color-mix(in srgb, var(--eb-accent) 6%, transparent);
 }
 
 body.eb-editing [data-eb-editable]:focus {
-  outline: 3px solid var(--eb-accent, #f56a21);
-  outline-offset: 5px;
-  background: rgba(255, 255, 255, 0.2);
+  outline: none;
+  box-shadow: 0 0 0 2px var(--eb-accent), 0 0 0 6px color-mix(in srgb, var(--eb-accent) 22%, transparent);
+  background: color-mix(in srgb, var(--eb-accent) 8%, transparent);
 }
 
 body.eb-editing .eb-layout-selected {
-  outline: 2px solid #2687ff !important;
-  outline-offset: 5px;
+  outline: none !important;
+  box-shadow: 0 0 0 2px var(--eb-info), 0 0 0 6px var(--eb-info-soft) !important;
 }
 
 body.eb-layout-dragging,
@@ -234,6 +454,7 @@ body.eb-layout-resizing * {
   cursor: nwse-resize !important;
 }
 
+/* ── Banners & toasts ── */
 .eb-restore-banner {
   position: fixed;
   bottom: 24px;
@@ -243,13 +464,14 @@ body.eb-layout-resizing * {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px 18px;
-  background: rgba(22, 22, 22, 0.92);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 12px;
-  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.36);
-  color: #fff;
-  font: 500 13px/1.4 system-ui, sans-serif;
+  padding: 12px 14px;
+  background: var(--eb-surface);
+  border: 1px solid var(--eb-border-strong);
+  border-radius: var(--eb-radius-md);
+  box-shadow: var(--eb-shadow-lg);
+  color: var(--eb-text);
+  font: 500 13px/1.4 var(--eb-font);
+  max-width: min(92vw, 480px);
 }
 
 .eb-restore-banner[hidden] {
@@ -261,18 +483,18 @@ body.eb-layout-resizing * {
   border: 0;
   border-radius: 8px;
   padding: 8px 12px;
-  font: 600 12px/1 system-ui, sans-serif;
+  font: 600 12px/1 var(--eb-font);
   cursor: pointer;
 }
 
 .eb-restore-banner .eb-restore-yes {
-  background: var(--eb-accent, #f56a21);
+  background: var(--eb-accent);
   color: #fff;
 }
 
 .eb-restore-banner .eb-restore-no {
-  background: rgba(255, 255, 255, 0.12);
-  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--eb-text);
 }
 
 .eb-undo-toast {
@@ -283,22 +505,23 @@ body.eb-layout-resizing * {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 10px 14px;
-  background: rgba(22, 22, 22, 0.92);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 10px;
-  color: #fff;
-  font: 500 13px/1 system-ui, sans-serif;
+  padding: 10px 12px 10px 14px;
+  background: var(--eb-surface);
+  border: 1px solid var(--eb-border-strong);
+  border-radius: var(--eb-radius-md);
+  box-shadow: var(--eb-shadow-md);
+  color: var(--eb-text);
+  font: 500 13px/1 var(--eb-font);
 }
 
 .eb-undo-toast button {
   appearance: none;
   border: 0;
-  border-radius: 6px;
-  padding: 6px 10px;
-  background: rgba(255, 255, 255, 0.14);
-  color: #fff;
-  font: 600 12px/1 system-ui, sans-serif;
+  border-radius: 8px;
+  padding: 7px 10px;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--eb-text);
+  font: 600 12px/1 var(--eb-font);
   cursor: pointer;
 }
 
@@ -308,5 +531,20 @@ body.eb-layout-resizing * {
   .eb-restore-banner,
   .eb-undo-toast {
     display: none !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .eb-editbar {
+    top: 12px;
+    right: 12px;
+  }
+
+  .eb-editbar .eb-panel {
+    width: calc(100vw - 24px);
+  }
+
+  .eb-actions {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
