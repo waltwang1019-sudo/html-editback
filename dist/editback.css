@@ -1,0 +1,312 @@
+/* html-editback — self-contained edit layer for HTML documents */
+
+.eb-editbar {
+  position: fixed;
+  top: 18px;
+  right: 24px;
+  z-index: 9999;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: #fff;
+  pointer-events: none;
+}
+
+.eb-editbar .eb-fab {
+  pointer-events: auto;
+  appearance: none;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--eb-accent, #f56a21);
+  color: #fff;
+  font: 800 18px/1 system-ui, sans-serif;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.34);
+  cursor: pointer;
+  transition: transform 0.18s ease, opacity 0.18s ease, background 0.18s ease;
+}
+
+.eb-editbar .eb-fab:hover {
+  transform: translateY(-1px) scale(1.04);
+  filter: brightness(1.08);
+}
+
+.eb-editbar.is-open .eb-fab {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.86);
+}
+
+.eb-editbar .eb-panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 13px;
+  background: rgba(22, 22, 22, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.36);
+  backdrop-filter: blur(14px);
+  opacity: 0;
+  transform: translateY(-2px) scale(0.96);
+  transform-origin: top right;
+  pointer-events: none;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.eb-editbar.is-open .eb-panel {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+.eb-editbar button {
+  appearance: none;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  padding: 9px 13px;
+  font: 600 13px/1 system-ui, sans-serif;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+}
+
+.eb-editbar button:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+.eb-editbar .eb-toggle {
+  background: var(--eb-accent, #f56a21);
+  border-color: var(--eb-accent, #f56a21);
+  color: #fff;
+  padding: 10px 16px;
+}
+
+.eb-editbar .eb-toggle[aria-pressed="true"] {
+  background: #35c46a;
+  border-color: #35c46a;
+}
+
+.eb-editbar .eb-fab,
+.eb-editbar .eb-collapse {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+}
+
+.eb-editbar .eb-collapse {
+  width: 32px;
+  height: 32px;
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.eb-editbar .eb-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #35c46a;
+  box-shadow: 0 0 0 4px rgba(53, 196, 106, 0.12);
+}
+
+.eb-editbar .eb-status {
+  min-width: 74px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.72);
+  white-space: nowrap;
+}
+
+.eb-editbar .eb-filelink {
+  font-size: 11.5px;
+  color: rgba(255, 255, 255, 0.55);
+  white-space: nowrap;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.3);
+  padding-bottom: 1px;
+}
+
+.eb-editbar .eb-filelink:hover {
+  color: #fff;
+}
+
+.eb-editbar .eb-filelink[data-linked="true"] {
+  color: #8fd9a8;
+  border-color: rgba(143, 217, 168, 0.5);
+}
+
+.eb-layout-tools {
+  position: fixed;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px;
+  background: rgba(33, 39, 64, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(12px);
+  font-family: system-ui, sans-serif;
+}
+
+.eb-layout-tools[hidden] {
+  display: none !important;
+}
+
+.eb-layout-tools button {
+  appearance: none;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  padding: 7px 10px;
+  font: 600 12px/1 system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.eb-layout-tools button:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.eb-layout-tools .eb-drag-handle {
+  background: #3d4470;
+  cursor: grab;
+}
+
+.eb-layout-tools .eb-resize-handle {
+  background: #2e8b57;
+  cursor: nwse-resize;
+}
+
+.eb-layout-tools .eb-duplicate-handle {
+  background: #5a6a9a;
+}
+
+.eb-layout-tools .eb-image-handle {
+  background: #7a5a9a;
+}
+
+.eb-layout-tools .eb-delete-handle {
+  background: #b84534;
+}
+
+body.eb-editing [data-eb-editable] {
+  cursor: text;
+}
+
+body.eb-editing [data-eb-editable]:hover {
+  outline: 2px dashed color-mix(in srgb, var(--eb-accent, #f56a21) 78%, transparent);
+  outline-offset: 4px;
+}
+
+body.eb-editing [data-eb-editable]:focus {
+  outline: 3px solid var(--eb-accent, #f56a21);
+  outline-offset: 5px;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+body.eb-editing .eb-layout-selected {
+  outline: 2px solid #2687ff !important;
+  outline-offset: 5px;
+}
+
+body.eb-layout-dragging,
+body.eb-layout-dragging * {
+  user-select: none !important;
+  cursor: grabbing !important;
+}
+
+body.eb-layout-resizing,
+body.eb-layout-resizing * {
+  user-select: none !important;
+  cursor: nwse-resize !important;
+}
+
+.eb-restore-banner {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10001;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+  background: rgba(22, 22, 22, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.36);
+  color: #fff;
+  font: 500 13px/1.4 system-ui, sans-serif;
+}
+
+.eb-restore-banner[hidden] {
+  display: none !important;
+}
+
+.eb-restore-banner button {
+  appearance: none;
+  border: 0;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font: 600 12px/1 system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.eb-restore-banner .eb-restore-yes {
+  background: var(--eb-accent, #f56a21);
+  color: #fff;
+}
+
+.eb-restore-banner .eb-restore-no {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+.eb-undo-toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 10001;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: rgba(22, 22, 22, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 10px;
+  color: #fff;
+  font: 500 13px/1 system-ui, sans-serif;
+}
+
+.eb-undo-toast button {
+  appearance: none;
+  border: 0;
+  border-radius: 6px;
+  padding: 6px 10px;
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  font: 600 12px/1 system-ui, sans-serif;
+  cursor: pointer;
+}
+
+@media print {
+  .eb-editbar,
+  .eb-layout-tools,
+  .eb-restore-banner,
+  .eb-undo-toast {
+    display: none !important;
+  }
+}
