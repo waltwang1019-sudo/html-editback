@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EditBack Demo</title>
+  <style>
+    :root {
+      --bg: #f4ebd8;
+      --ink: #20201e;
+      --blue: #3d4470;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { background: #222; font-family: system-ui, sans-serif; color: var(--ink); }
+    .book { max-width: 960px; margin: 40px auto; padding: 0 20px 80px; display: flex; flex-direction: column; gap: 24px; }
+    .pg {
+      background: var(--bg);
+      border-radius: 12px;
+      padding: 48px;
+      box-shadow: 0 20px 50px rgba(0,0,0,.35);
+      min-height: 320px;
+    }
+    .pg h1 { font-size: 42px; color: var(--blue); margin-bottom: 12px; }
+    .pg p { font-size: 18px; line-height: 1.7; color: #3c3a36; margin-bottom: 12px; }
+    .pg .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 24px; }
+    .pg .card { background: #fff; border: 1px solid #d4c8ae; border-radius: 8px; padding: 20px; }
+    .pg .card h3 { color: var(--blue); margin-bottom: 8px; }
+    .pg img { width: 100%; max-width: 280px; border-radius: 8px; margin-top: 16px; }
+    @media print {
+      html, body { background: #fff; }
+      .book { max-width: none; margin: 0; padding: 0; gap: 0; }
+      .pg { box-shadow: none; border-radius: 0; page-break-after: always; }
+    }
+  </style>
+  <link rel="stylesheet" href="../dist/editback.css">
+</head>
+<body>
+  <div class="book" data-editback-root>
+    <div class="pg">
+      <h1>EditBack Demo</h1>
+      <p>Click the orange button (top-right) to open the toolbar, then toggle <strong>Edit</strong>.</p>
+      <p>Click any text to edit inline. Click a card or image to move, resize, duplicate, or delete it.</p>
+      <p><strong>Shortcuts:</strong> E toggle edit · Cmd/Ctrl+S save · Cmd/Ctrl+P print · Esc deselect</p>
+    </div>
+    <div class="pg">
+      <h1>Sample Page</h1>
+      <p>Brand copy goes here. Everything is saved back to this HTML file in Chrome / Edge.</p>
+      <div class="cards">
+        <div class="card">
+          <h3>Feature A</h3>
+          <p>Drag me around or duplicate me.</p>
+        </div>
+        <div class="card">
+          <h3>Feature B</h3>
+          <p>Resize handles work on any selected block.</p>
+        </div>
+        <div class="card">
+          <h3>Feature C</h3>
+          <p>Delete shows a 5-second undo toast.</p>
+        </div>
+      </div>
+      <img src="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='560' height='320' viewBox='0 0 560 320'%3E%3Crect fill='%23EADFC2' width='560' height='320'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%233D4470' font-family='system-ui' font-size='22'%3EClick Image to replace%3C/text%3E%3C/svg%3E" alt="Placeholder">
+    </div>
+  </div>
+  <script>
+    window.EDITBACK_CONFIG = {
+      root: "[data-editback-root]",
+      fabLabel: "编",
+      accentColor: "#F56A21",
+      restoreDraft: true,
+    };
+  </script>
+  <script src="../dist/editback.js"></script>
+</body>
+</html>

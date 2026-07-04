@@ -1,0 +1,24 @@
+{
+  "name": "html-editback",
+  "version": "1.0.0",
+  "description": "Self-contained edit layer for HTML documents — edit in browser, save back to local file",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "inject": "node scripts/inject.mjs",
+    "demo": "open demo/demo.html"
+  },
+  "keywords": [
+    "html",
+    "editor",
+    "contenteditable",
+    "file-system-access-api",
+    "brand-book",
+    "presentation"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/waltwang1019-sudo/html-editback.git"
+  }
+}
